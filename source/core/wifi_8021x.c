@@ -1,21 +1,21 @@
  /*****************************************************************************
-  If not stated otherwise in this file or this component's LICENSE     
-  file the following copyright and licenses apply:                          
-                                                                            
-  Copyright 2020 RDK Management                                             
-                                                                            
-  Licensed under the Apache License, Version 2.0 (the "License");           
-  you may not use this file except in compliance with the License.          
-  You may obtain a copy of the License at                                   
-                                                                            
-      http://www.apache.org/licenses/LICENSE-2.0                            
-                                                                            
-  Unless required by applicable law or agreed to in writing, software       
-  distributed under the License is distributed on an "AS IS" BASIS,         
-  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  
-  See the License for the specific language governing permissions and       
-  limitations under the License.                                            
-                                                                            
+  If not stated otherwise in this file or this component's LICENSE
+  file the following copyright and licenses apply:
+
+  Copyright 2020 RDK Management
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+
  *****************************************************************************/
 
 #include <stdio.h>
@@ -66,7 +66,9 @@ void process_eap_data(wifi_8021x_data_t *data, wifi_8021x_t *module, bool new_ev
             }
 
             wifi_util_dbg_print(WIFI_MON, "%s:%d: Removing from hash and deleting\n", __func__, __LINE__);
+            printf("hash map remove\n");
             hash_map_remove(module->bssid[data->vap].sta_map, mac_str);
+            printf("got past hash map remove\n");
             if (data->data != NULL)
                 free(data->data);
             if (data != NULL)
@@ -192,7 +194,7 @@ void process_8021x_data_timeout(wifi_8021x_t *module)
             tmp = data;
             data = hash_map_get_next(module->bssid[i].sta_map, data);
 
-    
+
             switch (tmp->type) {
             case wifi_eapol_type_eap_packet:
                 wifi_util_dbg_print(WIFI_MON, "%s:%d:   wifi_eapol_type_eap_packet:\n", __func__, __LINE__);
@@ -261,10 +263,9 @@ int init_8021x(wifi_8021x_t *module)
         for (i = 0; i < (UINT) getTotalNumberVAPs(); i++) {
 #else
         for (i = 0; i < MAX_VAP; i++) {
-#endif               
+#endif
             module->bssid[i].sta_map = hash_map_create();
        }
 
        return 0;
 }
-

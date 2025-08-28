@@ -1,15 +1,15 @@
 /************************************************************************************
   If not stated otherwise in this file or this component's LICENSE file the
   following copyright and licenses apply:
-  
+
   Copyright 2018 RDK Management
-  
+
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
   You may obtain a copy of the License at
-  
+
   http://www.apache.org/licenses/LICENSE-2.0
-  
+
   Unless required by applicable law or agreed to in writing, software
   distributed under the License is distributed on an "AS IS" BASIS,
   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -245,7 +245,7 @@ int init_wifimgr()
     struct stat sb;
     char db_file[128];
     int hal_initialized = RETURN_ERR;
-    
+
     // channel change flag initialized as false
     memset(g_wifi_mgr.channel_change_in_progress, 0, sizeof(g_wifi_mgr.channel_change_in_progress));
 
@@ -356,7 +356,10 @@ int start_wifimgr()
     return 0;
 }
 
-int main(int argc, char *argv[])
+// int main(int argc, char *argv[])
+// this is the main function. it will need to be put back and the makefile adjusted
+// if we need to ship tests
+int xmain(int argc, char *argv[])
 {
     bool run_daemon = true;
     int  idx = 0;
