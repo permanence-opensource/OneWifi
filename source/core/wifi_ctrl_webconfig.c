@@ -1154,6 +1154,10 @@ int webconfig_steering_config_apply(wifi_ctrl_t *ctrl, webconfig_subdoc_decoded_
 
     wifi_util_dbg_print(WIFI_MGR,"%s %d \n", __func__, __LINE__);
 
+    if (data == NULL) {
+        return RETURN_ERR; 
+    }
+
     mgr_cfg_map = mgr->steering_config_map;
     dec_cfg_map = data->steering_config_map;
 
