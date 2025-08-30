@@ -45,6 +45,11 @@ static void to_mac_bytes   (mac_addr_str_t key, mac_address_t bmac) {
 
 void process_eap_data(wifi_8021x_data_t *data, wifi_8021x_t *module, bool new_event)
 {
+    if (data == NULL || module == NULL) {
+        wifi_util_dbg_print(WIFI_MON, "%s:%d: Error - NULL pointer provided for data or module\n", __func__, __LINE__);
+        return;
+    }
+
     wifi_eap_frame_t *eap, *prev_eap;
     wifi_8021x_data_t *prev_data;
     mac_addr_str_t mac_str;
@@ -52,6 +57,11 @@ void process_eap_data(wifi_8021x_data_t *data, wifi_8021x_t *module, bool new_ev
     struct timeval tnow;
 
     gettimeofday(&tnow, NULL);
+
+    if (data->data == NULL) {
+        wifi_util_dbg_print(WIFI_MON, "%s:%d: Error - NULL pointer provided for data->data\n", __func__, __LINE__);
+        return;
+    }
 
     eap = (wifi_eap_frame_t *)data->data;
 
