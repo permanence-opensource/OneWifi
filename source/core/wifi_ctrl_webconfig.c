@@ -1065,6 +1065,11 @@ int webconfig_steering_clients_apply(wifi_ctrl_t *ctrl, webconfig_subdoc_decoded
 
     wifi_util_dbg_print(WIFI_MGR,"%s %d \n", __func__, __LINE__);
 
+    if (data == NULL) {  
+        wifi_util_dbg_print(WIFI_MGR, "Error: decoded data is NULL\n");
+        return RETURN_ERR;
+    }
+
     mgr_cfg_map = mgr->steering_client_map;
     dec_cfg_map = data->steering_client_map;
 
