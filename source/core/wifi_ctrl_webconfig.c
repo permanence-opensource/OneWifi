@@ -1241,6 +1241,10 @@ int webconfig_vif_neighbors_apply(wifi_ctrl_t *ctrl, webconfig_subdoc_decoded_da
 
     wifi_util_dbg_print(WIFI_MGR,"%s %d \n", __func__, __LINE__);
 
+    if (data == NULL) { 
+      return RETURN_ERR;
+    }
+
     mgr_cfg_map = mgr->vif_neighbors_map;
     dec_cfg_map = data->vif_neighbors_map;
 
