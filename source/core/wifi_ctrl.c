@@ -603,6 +603,11 @@ bool check_for_greylisted_mac_filter(void)
 
 void bus_get_vap_init_parameter(const char *name, unsigned int *ret_val)
 {
+    if (name == NULL) {
+        wifi_util_error_print(WIFI_CTRL, "%s:%d 'name' is NULL\n", __func__, __LINE__);
+        return;
+    }
+
     int rc = bus_error_success;
     unsigned int total_slept = 0;
     char *pTmp = NULL;
