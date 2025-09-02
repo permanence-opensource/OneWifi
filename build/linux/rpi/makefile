@@ -301,7 +301,6 @@ CSOURCES = $(wildcard $(ONE_WIFI_HOME)/source/db/wifi_db.c) \
 	$(ONE_WIFI_HOME)/source/core/wifi_ctrl_queue_handlers.c	\
 	$(ONE_WIFI_HOME)/source/core/wifi_ctrl_webconfig.c	\
 	$(ONE_WIFI_HOME)/source/core/wifi_multidoc_webconfig.c	\
-	$(ONE_WIFI_HOME)/source/core/wifi_mgr.c	\
 	$(ONE_WIFI_HOME)/source/core/wifi_events.c	\
 	$(ONE_WIFI_HOME)/source/ccsp/ccsp.c \
 	$(ONE_WIFI_HOME)/source/utils/collection.c	\
@@ -310,7 +309,11 @@ CSOURCES = $(wildcard $(ONE_WIFI_HOME)/source/db/wifi_db.c) \
 	$(ONE_WIFI_HOME)/source/dml/linux/wifi_dml.c \
 	$(ONE_WIFI_HOME)/source/platform/linux/misc.c 	\
 	$(ONE_WIFI_HOME)/source/platform/linux/bus.c	\
-	$(ONE_WIFI_HOME)/source/platform/common/common.c   \
+	$(ONE_WIFI_HOME)/source/platform/common/common.c \
+	$(ONE_WIFI_HOME)/source/core/wifi_mgr.c \
+	$(ONE_WIFI_HOME)/source/db/wifi_db_apis.c
+
+CSOURCES_MAIN = $(ONE_WIFI_HOME)/source/core/wifi_mgr_main.c
 
 WEBCONFIG_SOURCES = $(ONE_WIFI_HOME)/source/webconfig/wifi_decoder.c	\
 		$(ONE_WIFI_HOME)/source/webconfig/wifi_encoder.c	\
@@ -412,6 +415,7 @@ ifdef EM_APP
 endif
 
 COBJECTS = $(CSOURCES:.c=.o)  # expands to list of object files
+COBJECTS_MAIN = $(CSOURCES_MAIN:.c=.o)
 
 GTEST_SOURCES = $(ONE_WIFI_HOME)/source/test/gtest_main.cpp \
 				$(ONE_WIFI_HOME)/source/test/webconfig_consumer_test.cpp \
@@ -451,7 +455,7 @@ $(BUILD_DIR):
 #
 
 
-all:  $(BUILD_DIR) $(CMN_LIBRARY) $(HAL_LIBRARY) $(WEBCONFIG_LIBRARY) $(HE_BUS_LIBRARY) $(PROGRAM)
+all:  $(BUILD_DIR) $(CMN_LIBRARY) $(HAL_LIBRARY) $(WEBCONFIG_LIBRARY) $(HE_BUS_LIBRARY) $(PROGRAM) gtest
 
 $(CMN_LIBRARY): $(ALL_CMN_LIB_OBJECTS)
 	$(AR)  $@  $^
@@ -469,8 +473,8 @@ $(HE_BUS_LIBRARY): $(ALL_HEBUS_LIB_OBJECTS)
 # executing its link command.
 #
 
-$(PROGRAM): $(ALLOBJECTS)
-	$(CXX) -o $@ $(ALLOBJECTS) $(LDFLAGS)
+$(PROGRAM): $(ALLOBJECTS) $(COBJECTS_MAIN)
+	$(CXX) -o $@ $(ALLOBJECTS) $(COBJECTS_MAIN) $(LDFLAGS) --coverage
 
 
 gtest: $(ALLOBJECTS) $(GTEST_OBJECTS)

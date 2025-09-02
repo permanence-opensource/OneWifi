@@ -27,7 +27,7 @@
 queue_t *queue_create   (void)
 {
     queue_t *q;
-
+    
     q = (queue_t *)malloc(sizeof(queue_t));
     if (q == NULL) {
         return NULL;
@@ -50,10 +50,10 @@ int8_t     queue_push      (queue_t *q, void *data)
     } else {
         tmp = q->head;
         q->head = e;
-        e->next = tmp;
+        e->next = tmp;    
     }
     q->count++;
-    return 0;
+    return 0;    
 }
 
 void    *queue_pop      (queue_t *q)
@@ -68,7 +68,7 @@ void    *queue_pop      (queue_t *q)
         tmp = e;
         e = e->next;
     }
-
+        
     data = e->data;
     if (tmp != NULL) {
         tmp->next = NULL;
@@ -85,7 +85,7 @@ void     *queue_remove    (queue_t *q, uint32_t index)
     element_t    *e, *tmp = NULL;
     void *data;
     uint32_t i = 0;
-
+    
     if (index >= queue_count(q)) {
         return NULL;
     }
@@ -95,8 +95,8 @@ void     *queue_remove    (queue_t *q, uint32_t index)
     }
     while (i < index) {
         tmp = e;
-        e = e->next;
-        i++;
+        e = e->next;    
+        i++;    
     }
     if (tmp == NULL) {
         q->head = e->next;
@@ -113,7 +113,7 @@ void    *queue_peek  (queue_t *q, uint32_t index)
 {
     element_t    *e;
     uint32_t i = 0;
-
+    
     if (index >= queue_count(q)) {
         return NULL;
     }
@@ -122,8 +122,8 @@ void    *queue_peek  (queue_t *q, uint32_t index)
         return NULL;
     }
     while ((i < index) && (e != NULL)) {
-        e = e->next;
-        i++;
+        e = e->next;    
+        i++;    
     }
     if (e) {
         return e->data;
@@ -158,7 +158,7 @@ void    queue_destroy   (queue_t *q)
 int8_t hash_map_put(hash_map_t *map, char *key, void *data)
 {
     hash_element_t *e;
-
+    
     if (map == NULL || map->queue == NULL || key == NULL) {
         return -1;
     }
@@ -341,7 +341,7 @@ hash_map_t  *hash_map_create    ()
     if (map == NULL) {
         return NULL;
     }
-
+    
     memset(map, 0, sizeof(hash_map_t));
     map->queue = queue_create();
     if (map->queue == NULL) {
@@ -356,7 +356,7 @@ void  hash_map_cleanup(hash_map_t *map)
 {
     hash_element_t *he;
     element_t    *e, *tmp;
-
+    
     if (map == NULL || map->queue == NULL || map->queue->head == NULL) {
         return;
     }

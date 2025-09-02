@@ -605,8 +605,6 @@ err:
     }
 }
 
-//static void wifiapi_handle_get_ApAssocDeviceDiagnosticResult(char **args, unsigned int num_args,
-// removing this static is clearly not okay, but will have to adjust later if we need a test on this
 void wifiapi_handle_get_ApAssocDeviceDiagnosticResult(char **args, unsigned int num_args,
      char *result_buf, int result_buf_size)
 {
