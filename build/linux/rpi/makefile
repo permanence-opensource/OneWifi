@@ -419,9 +419,7 @@ COBJECTS_MAIN = $(CSOURCES_MAIN:.c=.o)
 
 GTEST_SOURCES = $(ONE_WIFI_HOME)/source/test/gtest_main.cpp \
 				$(ONE_WIFI_HOME)/source/test/webconfig_consumer_test.cpp \
-				$(ONE_WIFI_HOME)/source/test/scheduler_test.cpp \
-				$(ONE_WIFI_HOME)/source/test/he_bus_test.cpp \
-				$(ONE_WIFI_HOME)/source/test/webconfig_test.cpp \
+				$(ONE_WIFI_HOME)/source/test/wifi_ctrl_webconfig_test.cpp \
 				$(ONE_WIFI_HOME)/source/test/wifi_8021x_test.cpp \
 				$(ONE_WIFI_HOME)/source/test/wifi_ctrl_wifiapi_handlers_test.cpp
 
