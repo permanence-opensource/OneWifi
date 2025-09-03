@@ -154,3 +154,50 @@ TEST(WifiCtrlWebconfig, SteeringClientsSameClientMap)
     hash_map_destroy(mgr->steering_client_map);
     mgr->steering_client_map = NULL;
 }
+
+extern "C" {
+    int webconfig_stats_config_apply(wifi_ctrl_t *ctrl, webconfig_subdoc_decoded_data_t *data);
+}
+
+TEST(WifiCtrlWebconfig, StatsConfigApplyNullArguments)
+{
+    ASSERT_EXIT((webconfig_stats_config_apply(NULL, NULL), exit(0)), ::testing::ExitedWithCode(0), ".*");
+    // expected that RETURN_ERR is -1, butuse the macro if possible
+    ASSERT_EQ(webconfig_stats_config_apply(NULL, NULL), RETURN_ERR);
+}
+
+TEST(WifiCtrlWebconfig, StatsConfigsApplyNullStatsConfigMap)
+{
+    // expected that RETURN_ERR is -1, butuse the macro if possible
+    webconfig_subdoc_decoded_data_t data = {0};
+    data.stats_config_map = NULL;
+
+    ASSERT_EQ(webconfig_stats_config_apply(NULL, &data), RETURN_ERR);
+}
+
+TEST(WifiCtrlWebconfig, StatsConfigApplyEmptyStatsConfigMap)
+{
+    wifi_mgr_t *mgr = get_wifimgr_obj();
+
+    webconfig_subdoc_decoded_data_t data = {0};
+    data.stats_config_map = hash_map_create();
+    mgr->stats_config_map = data.stats_config_map;
+
+    ASSERT_EQ(webconfig_stats_config_apply(NULL, &data), RETURN_OK);
+
+    mgr->stats_config_map = NULL;
+}
+
+TEST(WifiCtrlWebconfig, StatsConfigSameStatsConfigMap)
+{
+    wifi_mgr_t *mgr = get_wifimgr_obj();
+
+    webconfig_subdoc_decoded_data_t data = {0};
+    data.stats_config_map = hash_map_create();
+    mgr->stats_config_map = hash_map_create();
+
+    ASSERT_EQ(webconfig_stats_config_apply(NULL, &data), RETURN_OK);
+
+    hash_map_destroy(mgr->stats_config_map);
+    mgr->stats_config_map = NULL;
+}
