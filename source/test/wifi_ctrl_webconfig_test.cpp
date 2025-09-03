@@ -1,12 +1,61 @@
 #include <gtest/gtest.h>
 #include "wifi_webconfig.h"
 #include "source/core/wifi_ctrl.h"
+#include "source/core/wifi_mgr.h"
+
 
 extern "C" {
     int webconfig_vif_neighbors_apply(wifi_ctrl_t *ctrl, webconfig_subdoc_decoded_data_t *data);
 }
 
-TEST(WebConfig, NullDeref)
+TEST(WifiCtrlWebconfig, VifNeighborsApplyNullArguments)
 {
     ASSERT_EXIT((webconfig_vif_neighbors_apply(NULL, NULL), exit(0)), ::testing::ExitedWithCode(0), ".*");
+    // expected that RETURN_ERR is -1, butuse the macro if possible
+    ASSERT_EQ(webconfig_vif_neighbors_apply(NULL, NULL), RETURN_ERR);
+}
+
+TEST(WifiCtrlWebconfig, VifNeighborsApplyNullNeighborsMap)
+{
+    webconfig_subdoc_decoded_data_t data = {0};
+    data.vif_neighbors_map = NULL;
+    ASSERT_EXIT((webconfig_vif_neighbors_apply(NULL, &data), exit(0)), ::testing::ExitedWithCode(0), ".*");
+
+    // expected that RETURN_ERR is -1, butuse the macro if possible
+    ASSERT_EQ(webconfig_vif_neighbors_apply(NULL, &data), RETURN_ERR);
+}
+
+TEST(WifiCtrlWebconfig, VifNeighborsApplyHappyPathEmptyHashMap)
+{
+    webconfig_subdoc_decoded_data_t data = {0};
+    data.vif_neighbors_map = hash_map_create();
+
+    wifi_mgr_t *mgr = get_wifimgr_obj();
+    mgr->vif_neighbors_map = hash_map_create();
+
+    ASSERT_EQ(webconfig_vif_neighbors_apply(NULL, &data), RETURN_OK);
+
+    // this should really be null, since it's been destroyed!
+    // use below test to check
+    //ASSERT_EQ(data.vif_neighbors_map, nullptr);
+
+    hash_map_destroy(mgr->vif_neighbors_map);
+    mgr->vif_neighbors_map = NULL;
+}
+
+TEST(WifiCtrlWebconfig, VifNeighborsApplyHappyPathCheckDestroyedMapPtr)
+{
+    webconfig_subdoc_decoded_data_t data = {0};
+    data.vif_neighbors_map = hash_map_create();
+
+    wifi_mgr_t *mgr = get_wifimgr_obj();
+    mgr->vif_neighbors_map = hash_map_create();
+
+    ASSERT_EQ(webconfig_vif_neighbors_apply(NULL, &data), RETURN_OK);
+
+    // this should really be null, since it's been destroyed!
+    ASSERT_EQ(data.vif_neighbors_map, nullptr);
+
+    hash_map_destroy(mgr->vif_neighbors_map);
+    mgr->vif_neighbors_map = NULL;
 }
