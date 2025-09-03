@@ -107,3 +107,50 @@ TEST(WifiCtrlWebconfig, SteeringConfigApplyEmptyNeighborsMap)
     hash_map_destroy(mgr->steering_config_map);
     mgr->steering_config_map = NULL;
 }
+
+extern "C" {
+    int webconfig_steering_clients_apply(wifi_ctrl_t *ctrl, webconfig_subdoc_decoded_data_t *data);
+}
+
+TEST(WifiCtrlWebconfig, SteeringClientsApplyNullArguments)
+{
+    ASSERT_EXIT((webconfig_steering_clients_apply(NULL, NULL), exit(0)), ::testing::ExitedWithCode(0), ".*");
+    // expected that RETURN_ERR is -1, butuse the macro if possible
+    ASSERT_EQ(webconfig_steering_clients_apply(NULL, NULL), RETURN_ERR);
+}
+
+TEST(WifiCtrlWebconfig, SteeringClientsApplyNullClientMap)
+{
+    // expected that RETURN_ERR is -1, butuse the macro if possible
+    webconfig_subdoc_decoded_data_t data = {0};
+    data.steering_client_map = NULL;
+
+    ASSERT_EQ(webconfig_steering_clients_apply(NULL, &data), RETURN_ERR);
+}
+
+TEST(WifiCtrlWebconfig, SteeringClientsApplyEmptyClientMap)
+{
+    wifi_mgr_t *mgr = get_wifimgr_obj();
+
+    webconfig_subdoc_decoded_data_t data = {0};
+    data.steering_client_map = hash_map_create();
+    mgr->steering_client_map = data.steering_client_map;
+
+    ASSERT_EQ(webconfig_steering_clients_apply(NULL, &data), RETURN_OK);
+
+    mgr->steering_client_map = NULL;
+}
+
+TEST(WifiCtrlWebconfig, SteeringClientsSameClientMap)
+{
+    wifi_mgr_t *mgr = get_wifimgr_obj();
+
+    webconfig_subdoc_decoded_data_t data = {0};
+    data.steering_client_map = hash_map_create();
+    mgr->steering_client_map = hash_map_create();
+
+    ASSERT_EQ(webconfig_steering_clients_apply(NULL, &data), RETURN_OK);
+
+    hash_map_destroy(mgr->steering_client_map);
+    mgr->steering_client_map = NULL;
+}
