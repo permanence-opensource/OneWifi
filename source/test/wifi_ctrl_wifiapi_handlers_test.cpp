@@ -35,7 +35,7 @@ TEST(WifiApi, GetApAssociatedDeviceDiagnosticNoSegfault)
     three entries, but the function currently overwrites all previous content with
     the final entry. see the next test for the corrected version.
  */
-TEST(WifiApi, DISABLED_GetApAssociatedDeviceDiagnosticResultTruncated)
+TEST(WifiApi, GetApAssociatedDeviceDiagnosticResultTruncated)
 {
     wifi_ctrl_t *ctrl = (wifi_ctrl_t *)get_wifictrl_obj();
     wifi_bus_desc_t *bus_desc = get_bus_descriptor();
