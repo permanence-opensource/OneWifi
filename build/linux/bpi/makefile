@@ -5,12 +5,12 @@
 #
 
 #
-# Command line parameters: Edit these parameters so that you can 
+# Command line parameters: Edit these parameters so that you can
 # easily run the sample by typing "make -f Makefile.Linux run".
 #
 # You will need to:
 # (1) Describe parameters here. ex: IN_SHAPEFILE is the input shapefile
-# (2) Define parameters below this comment box. 
+# (2) Define parameters below this comment box.
 #       ex: IN_SHAPEFILE = /mycomp/data/shapefile.shp
 # (3) Add the parameters to the run target at the end of this file
 #       ex: ./$(PROGRAM) $(IN_SHAPEFILE)
@@ -330,6 +330,7 @@ CSOURCES = $(wildcard $(ONE_WIFI_HOME)/source/db/wifi_db.c) \
     $(ONE_WIFI_HOME)/source/core/wifi_ctrl_webconfig.c	\
     $(ONE_WIFI_HOME)/source/core/wifi_multidoc_webconfig.c	\
     $(ONE_WIFI_HOME)/source/core/wifi_mgr.c	\
+    $(ONE_WIFI_HOME)/source/core/wifi_mgr_main.c	\
     $(ONE_WIFI_HOME)/source/core/wifi_events.c	\
     $(ONE_WIFI_HOME)/source/ccsp/ccsp.c \
     $(ONE_WIFI_HOME)/source/utils/collection.c	\
@@ -378,7 +379,7 @@ INCLUDE_HE_LIB_DIRS = \
 
 ifdef EASY_MESH_NODE
     INCLUDEDIRS +=  -I$(ONE_WIFI_EM_HOME)/inc
-    WEBCONFIG_SOURCES += $(ONE_WIFI_HOME)/source/webconfig/wifi_easymesh_translator.c 
+    WEBCONFIG_SOURCES += $(ONE_WIFI_HOME)/source/webconfig/wifi_easymesh_translator.c
 endif
 
 ifdef ONEWIFI_CSI_APP_SUPPORT
@@ -411,7 +412,7 @@ ifdef ONEWIFI_WHIX_APP_SUPPORT
 	CSOURCES += $(wildcard $(ONE_WIFI_HOME)/source/apps/whix/*.c)
 endif
 
-ifdef ONEWIFI_BLASTER_APP_SUPPORT 
+ifdef ONEWIFI_BLASTER_APP_SUPPORT
 	CSOURCES += $(wildcard $(ONE_WIFI_HOME)/source/apps/blaster/*.c) \
 	WEBCONFIG_SOURCES += $(ONE_WIFI_HOME)/source/webconfig/wifi_webconfig_blaster.c
 endif
@@ -504,9 +505,9 @@ clean:
 
 #
 # Run target: "make -f Makefile.Linux run" to execute the application
-#             You will need to add $(VARIABLE_NAME) for any command line parameters 
+#             You will need to add $(VARIABLE_NAME) for any command line parameters
 #             that you defined earlier in this file.
-# 
+#
 
 run:
 	./$(PROGRAM)
