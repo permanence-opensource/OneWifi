@@ -1,15 +1,15 @@
 /************************************************************************************
   If not stated otherwise in this file or this component's LICENSE file the
   following copyright and licenses apply:
-  
+
   Copyright 2018 RDK Management
-  
+
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
   You may obtain a copy of the License at
-  
+
   http://www.apache.org/licenses/LICENSE-2.0
-  
+
   Unless required by applicable law or agreed to in writing, software
   distributed under the License is distributed on an "AS IS" BASIS,
   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -221,7 +221,7 @@ void wifiapi_printvapconfig(char *buff, unsigned int buff_size, wifi_vap_info_ma
             }
             if (idx >= buff_size) return;
             idx += snprintf(&buff[idx], buff_size-idx, "scan period: %d\nscan channel: %d\nscan channel freq band: %d\n",
-                            sta->scan_params.period, sta->scan_params.channel.channel, 
+                            sta->scan_params.period, sta->scan_params.channel.channel,
                             sta->scan_params.channel.band);
             if (idx >= buff_size) return;
             security = &(sta->security);
@@ -245,7 +245,7 @@ void wifiapi_printvapconfig(char *buff, unsigned int buff_size, wifi_vap_info_ma
             if (idx >= buff_size) return;
 
             wps = &(bss->wps);
-            
+
             idx += snprintf(&buff[idx], buff_size-idx, "WPS enable: %d\n", wps->enable);
             idx += snprintf(&buff[idx], buff_size-idx, "WPS methods: 0x%x\n", wps->methods);
             idx += snprintf(&buff[idx], buff_size-idx, "WPS PIN: %s\n", wps->pin);
@@ -255,17 +255,17 @@ void wifiapi_printvapconfig(char *buff, unsigned int buff_size, wifi_vap_info_ma
             security = &(bss->security);
         }
 
-        idx += snprintf(&buff[idx], buff_size-idx, "security mode: %d\nencryption: %d\nmfp: %d\nwpa3_transition_disable: %d\n", 
+        idx += snprintf(&buff[idx], buff_size-idx, "security mode: %d\nencryption: %d\nmfp: %d\nwpa3_transition_disable: %d\n",
                                         security->mode, security->encr, security->mfp, security->wpa3_transition_disable);
         if (idx >= buff_size) return;
-        idx += snprintf(&buff[idx], buff_size-idx, "rekey_interval: %d\nstrict_rekey: %d\neapol_key_timeout: %d\neapol_key_retries: %d\n", 
+        idx += snprintf(&buff[idx], buff_size-idx, "rekey_interval: %d\nstrict_rekey: %d\neapol_key_timeout: %d\neapol_key_retries: %d\n",
                                         security->rekey_interval, security->strict_rekey, security->eapol_key_timeout,
                                         security->eapol_key_retries);
         if (idx >= buff_size) return;
-        idx += snprintf(&buff[idx], buff_size-idx, "eap_identity_req_timeout: %d\neap_identity_req_retries: %d\neap_req_timeout: %d\n", 
+        idx += snprintf(&buff[idx], buff_size-idx, "eap_identity_req_timeout: %d\neap_identity_req_retries: %d\neap_req_timeout: %d\n",
                                         security->eap_identity_req_timeout, security->eap_identity_req_retries, security->eap_req_timeout);
         if (idx >= buff_size) return;
-        idx += snprintf(&buff[idx], buff_size-idx, "eap_req_retries: %d\ndisable_pmksa_caching: %d\n", 
+        idx += snprintf(&buff[idx], buff_size-idx, "eap_req_retries: %d\ndisable_pmksa_caching: %d\n",
                                         security->eap_req_retries, security->disable_pmksa_caching);
         if (idx >= buff_size) return;
 
@@ -319,7 +319,7 @@ void wifiapi_printbssinfo(char *buff, unsigned int buff_size, wifi_bss_info_t *b
                                 bss[i].ssid, bss[i].bssid[0], bss[i].bssid[1], bss[i].bssid[2],
                                 bss[i].bssid[3], bss[i].bssid[4], bss[i].bssid[5]);
         if (idx >= buff_size) return;
-        
+
         idx += snprintf(&buff[idx], buff_size-idx, "rssi: %d\ncaps: %x\nbeacon_int: %d\nfreq: %d\n\n",
                                         bss[i].rssi, bss[i].caps, bss[i].beacon_int, bss[i].freq);
         if (idx >= buff_size) return;
@@ -605,7 +605,7 @@ err:
     }
 }
 
-static void wifiapi_handle_get_ApAssocDeviceDiagnosticResult(char **args, unsigned int num_args,
+void wifiapi_handle_get_ApAssocDeviceDiagnosticResult(char **args, unsigned int num_args,
      char *result_buf, int result_buf_size)
 {
         sta_key_t sta_key;
@@ -690,7 +690,7 @@ void process_wifiapi_command(char *command, unsigned int len)
 #ifndef LINUX_VM_PORT
     rdk_wifi_vap_info_t *rdk_vap_info;
 #endif
-    
+
     memset(input, 0, 1024);
     memcpy(input, command, len);
     str = strtok_r(input, " ", &saveptr);
@@ -703,7 +703,7 @@ void process_wifiapi_command(char *command, unsigned int len)
     for (i=0; i < (sizeof(wifi_api_list)/sizeof(struct hal_api_info)); i++) {
         if (strcmp(args[0], wifi_api_list[i].name) == 0) {
             if(num_args-1 < wifi_api_list[i].num_args ) {
-                sprintf(buff, "wifi_api2: Error - Invalid number of arguments\nhelp: %s %s\n", 
+                sprintf(buff, "wifi_api2: Error - Invalid number of arguments\nhelp: %s %s\n",
                                 wifi_api_list[i].name, wifi_api_list[i].help);
                 goto publish;
             } else {
@@ -877,7 +877,7 @@ void process_wifiapi_command(char *command, unsigned int len)
             goto publish;
         }
         //call hal_api
-        
+
         //update result
         wifiapi_printvapconfig(buff, sizeof(buff), &(mgr->radio_config[radio_index].vaps.vap_map));
     } else if (strcmp(args[0], "wifi_connect")==0) {
@@ -946,7 +946,7 @@ void process_wifiapi_command(char *command, unsigned int len)
             goto publish;
         }
         wifiapi_printbssinfo(buff, sizeof(buff), bss, num_bss);
-        
+
     } else if (strcmp(args[0], "wifi_getStationStats")==0) {
     } else if (strcmp(args[0], "wifi_startScan")==0) {
         //check radio_index
