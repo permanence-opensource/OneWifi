@@ -13,10 +13,11 @@ extern "C" {
 TEST(Wifi8021x, EapSuccess)
 {
     wifi_8021x_data_t *data = (wifi_8021x_data_t *) malloc(sizeof(wifi_8021x_data_t));
-    wifi_eap_frame_t *framedata = (wifi_eap_frame_t *) malloc(sizeof(wifi_eap_frame_t));
+    wifi_8021x_data_t *prevdata = (wifi_8021x_data_t *) malloc(sizeof(wifi_8021x_data_t));
 
-    int *someint = (int *) malloc(sizeof(int));
-    *someint = 2;
+    wifi_eap_frame_t *framedata = (wifi_eap_frame_t *) malloc(sizeof(wifi_eap_frame_t));
+    wifi_eap_frame_t *prevframedata = (wifi_eap_frame_t *) malloc(sizeof(wifi_eap_frame_t));
+
     mac_addr_str_t mac_str = {0};
     char *key;
 
@@ -27,13 +28,20 @@ TEST(Wifi8021x, EapSuccess)
     data->data = framedata;
     data->vap = 0;
 
+    prevframedata->code = wifi_eap_code_success;
+    prevframedata->id = 40;
+
+    prevdata->packet_time.tv_sec = 0;
+    prevdata->data = prevframedata;
+    prevdata->vap = 0;
+
     wifi_8021x_t *module = new wifi_8021x_t;
     module->bssid[0].eap_timeout = 0;
     module->bssid[0].eap_success = 0;
     module->bssid[0].eap_failure = 0;
     module->bssid[0].sta_map = hash_map_create();
     key = to_mac_str(data->mac, mac_str);
-    hash_map_put(module->bssid[0].sta_map, strdup(key), someint);
+    hash_map_put(module->bssid[0].sta_map, strdup(key), prevdata);
 
     process_eap_data(data, module, true);
 
@@ -46,18 +54,27 @@ TEST(Wifi8021x, EapSuccess)
 TEST(Wifi8021x, EapFailure)
 {
     wifi_8021x_data_t *data = (wifi_8021x_data_t *) malloc(sizeof(wifi_8021x_data_t));
+    wifi_8021x_data_t *prevdata = (wifi_8021x_data_t *) malloc(sizeof(wifi_8021x_data_t));
+
     wifi_eap_frame_t *framedata = (wifi_eap_frame_t *) malloc(sizeof(wifi_eap_frame_t));
-    int *someint = (int *) malloc(sizeof(int));
-    *someint = 2;
+    wifi_eap_frame_t *prevframedata = (wifi_eap_frame_t *) malloc(sizeof(wifi_eap_frame_t));
+
     mac_addr_str_t mac_str = {0};
     char *key;
 
-    framedata->code = wifi_eap_code_failure;
+    framedata->code = wifi_eap_code_success;
     framedata->id = 42;
+
     data->packet_time.tv_sec = 0;
     data->data = framedata;
     data->vap = 0;
-    data->dir = wifi_direction_unknown;
+
+    prevframedata->code = wifi_eap_code_success;
+    prevframedata->id = 40;
+
+    prevdata->packet_time.tv_sec = 0;
+    prevdata->data = prevframedata;
+    prevdata->vap = 0;
 
     wifi_8021x_t *module = new wifi_8021x_t;
     module->bssid[0].eap_timeout = 0;
@@ -65,7 +82,7 @@ TEST(Wifi8021x, EapFailure)
     module->bssid[0].eap_failure = 0;
     module->bssid[0].sta_map = hash_map_create();
     key = to_mac_str(data->mac, mac_str);
-    hash_map_put(module->bssid[0].sta_map, strdup(key), someint);
+    hash_map_put(module->bssid[0].sta_map, strdup(key), prevdata);
 
     process_eap_data(data, module, true);
 
