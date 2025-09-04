@@ -967,6 +967,11 @@ static bool is_memwraptool_param_changed(wifi_global_config_t *data_config)
 
 int webconfig_stats_config_apply(wifi_ctrl_t *ctrl, webconfig_subdoc_decoded_data_t *data)
 {
+    if (data == NULL) {
+        wifi_util_dbg_print(WIFI_CTRL, "%s %d: Error: 'data' is NULL\n", __func__, __LINE__);
+        return RETURN_ERR;
+    }
+
     wifi_mgr_t *mgr = get_wifimgr_obj();
     stats_config_t  *mgr_stats_config, *dec_stats_config, *temp_stats_config;
     hash_map_t *mgr_cfg_map, *dec_cfg_map;
@@ -1065,6 +1070,11 @@ int webconfig_steering_clients_apply(wifi_ctrl_t *ctrl, webconfig_subdoc_decoded
 
     wifi_util_dbg_print(WIFI_MGR,"%s %d \n", __func__, __LINE__);
 
+    if (data == NULL) {  
+        wifi_util_dbg_print(WIFI_MGR, "Error: decoded data is NULL\n");
+        return RETURN_ERR;
+    }
+
     mgr_cfg_map = mgr->steering_client_map;
     dec_cfg_map = data->steering_client_map;
 
@@ -1154,6 +1164,10 @@ int webconfig_steering_config_apply(wifi_ctrl_t *ctrl, webconfig_subdoc_decoded_
 
     wifi_util_dbg_print(WIFI_MGR,"%s %d \n", __func__, __LINE__);
 
+    if (data == NULL) {
+        return RETURN_ERR; 
+    }
+
     mgr_cfg_map = mgr->steering_config_map;
     dec_cfg_map = data->steering_config_map;
 
@@ -1240,6 +1254,10 @@ int webconfig_vif_neighbors_apply(wifi_ctrl_t *ctrl, webconfig_subdoc_decoded_da
     char key[64] = {0};
 
     wifi_util_dbg_print(WIFI_MGR,"%s %d \n", __func__, __LINE__);
+
+    if (data == NULL) { 
+      return RETURN_ERR;
+    }
 
     mgr_cfg_map = mgr->vif_neighbors_map;
     dec_cfg_map = data->vif_neighbors_map;

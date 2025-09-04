@@ -521,7 +521,7 @@ int get_managed_guest_bridge(char *brval, unsigned long length, int radio_index)
         if (token) {
             snprintf(brval, length, "%s", token + 1);
         } else {
-            snprintf(brval, length, "%s", brname); 
+            snprintf(brval, length, "%s", brname);
         }
         wifi_util_info_print(WIFI_CTRL, "%s:%d Managed_wifi bridge val is %s\n",__func__,__LINE__,brval);
         get_bus_descriptor()->bus_data_free_fn(&data);
@@ -1079,7 +1079,8 @@ int wifiapi_result_publish(void)
     bus_error_t rc;
     int len;
     bus_error_t status = bus_error_success;
-    char data[128];
+    const unsigned int data_buffer_size = 128;
+    char data[data_buffer_size];
     raw_data_t rdata;
 
     wifi_ctrl_t *ctrl = (wifi_ctrl_t *)get_wifictrl_obj();
@@ -1094,6 +1095,10 @@ int wifiapi_result_publish(void)
         strncpy(data, "Result not avaiable", len);
     } else {
         len = strlen(ctrl->wifiapi.result);
+        if(len > data_buffer_size){
+            wifi_util_error_print(WIFI_CTRL, "%s:%d  buffer payload overflow\n", __func__, __LINE__);
+            return bus_error_invalid_input;
+        }
         strncpy(data, ctrl->wifiapi.result, len);
     }
 
@@ -1525,7 +1530,7 @@ static int eth_bh_status_notify()
 #endif
 
 static void acs_keep_out_evt_handler(char* event_name, raw_data_t *p_data, void *userData)
-{    
+{
     (void)userData;
     if (p_data->data_type != bus_data_type_string) {
         wifi_util_error_print(WIFI_CTRL, "%s:%d event:%s wrong data type:%x\n", __func__, __LINE__,
@@ -1798,13 +1803,13 @@ void bus_subscribe_events(wifi_ctrl_t *ctrl)
     if (ctrl->mesh_keep_out_chans_subscribed == false) {
         if (bus_desc->bus_event_subs_fn(&ctrl->handle, ACS_KEEP_OUT, acs_keep_out_evt_handler,
                  NULL,0) != bus_error_success) {
-            // wifi_util_dbg_print(WIFI_CTRL,"%s:%d bus: bus event:%s subscribe failed\n",__FUNCTION__, __LINE__, ACS_KEEP_OUT);      
+            // wifi_util_dbg_print(WIFI_CTRL,"%s:%d bus: bus event:%s subscribe failed\n",__FUNCTION__, __LINE__, ACS_KEEP_OUT);
                 } else {
                     ctrl->mesh_keep_out_chans_subscribed = true;
                     wifi_util_dbg_print(WIFI_CTRL, "%s:%d bus: bus event:%s subscribe success\n",__FUNCTION__, __LINE__, ACS_KEEP_OUT);
         }
     }
-        
+
 #if defined(RDKB_EXTENDER_ENABLED)
     if (ctrl->eth_bh_status_subscribed == false) {
         if (bus_desc->bus_event_subs_fn(&ctrl->handle, ETH_BH_STATUS, eth_bh_status_handler, NULL,
@@ -2919,7 +2924,7 @@ bus_error_t get_client_assoc_request_multi(char const* methodName, raw_data_t *i
     }
 
     memcpy(&mac_addr, pTmp, len);
-    wifi_util_dbg_print(WIFI_CTRL, "%s %d mac : %s ifname : %s\n", __func__, __LINE__, mac_addr.mac_addr, mac_addr.if_name); 
+    wifi_util_dbg_print(WIFI_CTRL, "%s %d mac : %s ifname : %s\n", __func__, __LINE__, mac_addr.mac_addr, mac_addr.if_name);
     memset(&tmp_data, 0, sizeof(tmp_data));
     prop = (wifi_platform_property_t *)get_wifi_hal_cap_prop();
     convert_ifname_to_vapname(prop, mac_addr.if_name, vapname, sizeof(vapname));
