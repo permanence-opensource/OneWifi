@@ -12,10 +12,6 @@ extern "C" {
 
 TEST(Wifi8021x, EapSuccess)
 {
-    // reading the debug files isn't functioning, it seems
-    // std::ofstream { "/nvram/wifiMonDbg" };
-    // std::remove("/tmp/wifiMon");
-
     wifi_8021x_data_t *data = (wifi_8021x_data_t *) malloc(sizeof(wifi_8021x_data_t));
     wifi_eap_frame_t *framedata = (wifi_eap_frame_t *) malloc(sizeof(wifi_eap_frame_t));
 
@@ -45,8 +41,6 @@ TEST(Wifi8021x, EapSuccess)
     ASSERT_EQ(module->bssid[0].eap_success, 1);
     ASSERT_EQ(module->bssid[0].eap_failure, 0);
 
-    //possibly the file isn't flushing fast enough?
-    //ASSERT_NE(content.find("Received eap success  id:42 diretion:unknown"), std::string::npos);
 }
 
 TEST(Wifi8021x, EapFailure)

@@ -13,12 +13,29 @@ extern "C" {
     }
 }
 
+TEST(WifiApi, GetApAssociatedDeviceDiagnosticNoSegfault)
+{
+    wifi_ctrl_t *ctrl = (wifi_ctrl_t *)get_wifictrl_obj();
+    wifi_bus_desc_t *bus_desc = get_bus_descriptor();
+    bus_desc->bus_event_publish_fn=mock_bus_event_publish;
+    char command[1024];
+    strncpy(command, "wifi_getApAssociatedDeviceDiagnosticResult3 1", 1024);
+     ASSERT_EXIT(
+        (
+            process_wifiapi_command(
+                command,
+                strlen(command)),
+            exit(0)),
+        ::testing::ExitedWithCode(0), ".*");
+
+}
+
 /**
     note: this expected string is wrong. the platform mocks set up a devarray with
     three entries, but the function currently overwrites all previous content with
     the final entry. see the next test for the corrected version.
  */
-TEST(WifiApi, GetApAssociatedDeviceDiagnosticResultTruncated)
+TEST(WifiApi, DISABLED_GetApAssociatedDeviceDiagnosticResultTruncated)
 {
     wifi_ctrl_t *ctrl = (wifi_ctrl_t *)get_wifictrl_obj();
     wifi_bus_desc_t *bus_desc = get_bus_descriptor();
