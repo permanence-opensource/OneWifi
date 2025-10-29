@@ -616,11 +616,7 @@ static void wifiapi_handle_get_ApAssocDeviceDiagnosticResult(char **args, unsign
 	 unsigned int num_devs = 0;
 		if (wifi_getApAssociatedDeviceDiagnosticResult3(vap_index, &dev_array, &num_devs) != RETURN_OK) {
           snprintf(result_buf, result_buf_size, "Failed to get AP Associated Device Diagnostic Result\n");
-	     if (dev_array != NULL) {
-             free(dev_array);
-             dev_array = NULL;
-         }
-         return;
+          return;
       }
 		char* to_sta_key(uint8_t *mac_address, sta_key_t sta_key) {
     snprintf(sta_key, STA_KEY_LEN, "%02x:%02x:%02x:%02x:%02x:%02x",
@@ -660,11 +656,11 @@ static void wifiapi_handle_get_ApAssocDeviceDiagnosticResult(char **args, unsign
               dev_array[i].cli_MultipleRetryCount, dev_array[i].cli_MaxDownlinkRate,
               dev_array[i].cli_MaxUplinkRate, dev_array[i].cli_activeNumSpatialStreams,
               dev_array[i].cli_TxFrames, dev_array[i].cli_RxRetries, dev_array[i].cli_RxErrors);
+      }
       if (dev_array != NULL) {
         free(dev_array);
         dev_array = NULL;
     }
-      }
 }
 
 void process_wifiapi_command(char *command, unsigned int len)
