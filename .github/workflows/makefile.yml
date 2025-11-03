@@ -68,7 +68,9 @@ jobs:
                                 mariadb-server \
                                 gnupg \
                                 file \
-                                golang
+                                golang \
+                                libgtest-dev \
+                                libgmock-dev
 
     - name: Setup OneWiFi for ${{ matrix.platform.name }}
       working-directory: easymesh_project/OneWifi
