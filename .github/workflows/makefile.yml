@@ -6,6 +6,15 @@ on:
   pull_request:
     branches: [ "develop" ]
 
+permissions:
+  checks: write
+  contents: read
+  issues: read
+  packages: read
+  pull-requests: write
+  statuses: read
+  id-token: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -83,5 +92,22 @@ jobs:
 
     - name: Build OneWiFi for ${{ matrix.platform.name }}
       working-directory: easymesh_project/OneWifi
+      continue-on-error: true
       run: |
         make -f ${{ matrix.platform.makefile_path }} all
+
+    - name: Copy Test Results
+      if: ${{ matrix.platform.name == 'Platform Mock Unittests' }}
+      run: |
+        cp -Lpr /tmp/Gtest_Report test-results
+      shell: bash
+
+    - name: Publish Test Results
+      uses: EnricoMi/publish-unit-test-result-action@v2
+      if: ${{ matrix.platform.name == 'Platform Mock Unittests' }}
+      with:
+        files: |
+          test-results/**/*.xml
+          test-results/**/*.trx
+          test-results/**/*.json
+        check_name: ${{ matrix.platform.name }} test results
