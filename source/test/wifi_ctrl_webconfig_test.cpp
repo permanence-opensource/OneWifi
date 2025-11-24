@@ -224,3 +224,41 @@ TEST(WifiCtrlWebconfig, StatsConfigSameStatsConfigMap)
     hash_map_destroy(mgr->stats_config_map);
     mgr->stats_config_map = NULL;
 }
+
+/** testcase for webconfig_vif_neighbors_apply: TEST(WifiCtrlWebconfig, VifNeighborsApplyDeleteNeighbors)
+	 objective: Test that neighbors present in mgr->vif_neighbors_map but not in data->vif_neighbors_map are removed and freed.
+	 expected outcome: The neighbor that existed only in mgr_map should be removed and memory freed (if possible to monitor). Function returns RETURN_OK.
+**/
+TEST(WifiCtrlWebconfig, VifNeighborsApplyDeleteNeighbors)
+{
+    // Setup manager and decoded data hash maps
+    wifi_mgr_t *mgr = get_wifimgr_obj();
+    hash_map_t *mgr_map = hash_map_create();
+    hash_map_t *dec_map = hash_map_create();
+
+    // Create a neighbor only in mgr_map
+    vif_neighbors_t *mgr_neighbor = (vif_neighbors_t *)malloc(sizeof(vif_neighbors_t));
+    ASSERT_NE(mgr_neighbor, nullptr);
+    memset(mgr_neighbor, 0, sizeof(vif_neighbors_t));
+    snprintf(mgr_neighbor->neighbor_id, sizeof(mgr_neighbor->neighbor_id), "unique_neighbor_1");
+    // Fill other fields as needed
+    hash_map_put(mgr_map, strdup(mgr_neighbor->neighbor_id), mgr_neighbor);
+
+    // Assign hash maps to manager and decoded data
+    mgr->vif_neighbors_map = mgr_map;
+
+    webconfig_subdoc_decoded_data_t data = {0};
+    data.vif_neighbors_map = dec_map;
+
+    // Apply and remove neighbors
+    ASSERT_EQ(webconfig_vif_neighbors_apply(NULL, &data), RETURN_OK);
+
+    // After apply, neighbor should be removed from mgr_map
+    void *found = hash_map_remove(mgr_map, "unique_neighbor_1");
+    ASSERT_EQ(found, nullptr);
+
+    // Cleanup maps (mgr_vif_neighbors_map is empty, dec_vif_neighbors_map is destroyed by apply)
+    hash_map_destroy(mgr_map);
+    mgr->vif_neighbors_map = NULL;
+    // dec_map is destroyed by apply, do not destroy again
+}
