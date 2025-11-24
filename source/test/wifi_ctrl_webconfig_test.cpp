@@ -326,3 +326,77 @@ TEST(WifiCtrlWebconfig, VifNeighborsApplyUpdateNeighbors)
 
     // dec_neighbor is freed by webconfig_vif_neighbors_apply; mgr_neighbor is also freed if map is destroyed
 }
+
+/** testcase for webconfig_vif_neighbors_apply: TEST(WifiCtrlWebconfig, VifNeighborsApplyMultipleAddsAndDeletes)
+	 objective: Test the function handles a mixture of neighbors—some only in mgr, some only in data, some in both—correctly deleting and adding as appropriate.
+	 expected outcome: Neighbor A is deleted from mgr_map. Neighbor D is added to mgr_map. Neighbors B and C are updated. Function returns RETURN_OK.
+**/
+TEST(WifiCtrlWebconfig, VifNeighborsApplyMultipleAddsAndDeletes)
+{
+    // Setup Wifi Manager and Decoded Data structures
+    wifi_mgr_t *mgr = get_wifimgr_obj();
+    hash_map_t *mgr_map = hash_map_create();
+    hash_map_t *dec_map = hash_map_create();
+    mgr->vif_neighbors_map = mgr_map;
+
+    webconfig_subdoc_decoded_data_t data = {0};
+    data.vif_neighbors_map = dec_map;
+
+    // Helper to allocate and insert a vif_neighbors_t object
+    auto add_neighbor = [](hash_map_t *map, const char *id, int channel, int priority) {
+        vif_neighbors_t *neighbor = (vif_neighbors_t*)malloc(sizeof(vif_neighbors_t));
+        memset(neighbor, 0, sizeof(vif_neighbors_t));
+        snprintf(neighbor->neighbor_id, sizeof(neighbor->neighbor_id), "%s", id);
+        neighbor->channel = channel;
+        neighbor->priority = priority;
+        hash_map_put(map, strdup(neighbor->neighbor_id), neighbor);
+        return neighbor;
+    };
+
+    // Create neighbors: A, B, C in mgr
+    vif_neighbors_t* neighborA_mgr = add_neighbor(mgr_map, "A", 36, 1);
+    vif_neighbors_t* neighborB_mgr = add_neighbor(mgr_map, "B", 40, 2);
+    vif_neighbors_t* neighborC_mgr = add_neighbor(mgr_map, "C", 44, 3);
+
+    // Create neighbors: B, C, D in data
+    vif_neighbors_t* neighborB_dec = add_neighbor(dec_map, "B", 140, 22); // changed props
+    vif_neighbors_t* neighborC_dec = add_neighbor(dec_map, "C", 144, 33); // changed props
+    vif_neighbors_t* neighborD_dec = add_neighbor(dec_map, "D", 149, 4);
+
+    // Apply webconfig update
+    int result = webconfig_vif_neighbors_apply(NULL, &data);
+
+    // Neighbor A should now be deleted from mgr_map
+    EXPECT_EQ(hash_map_get(mgr_map, "A"), nullptr);
+
+    // Neighbor D should be added to mgr_map
+    vif_neighbors_t* neighborD_mgr = (vif_neighbors_t*)hash_map_get(mgr_map, "D");
+    ASSERT_NE(neighborD_mgr, nullptr);
+    EXPECT_STREQ(neighborD_mgr->neighbor_id, "D");
+    EXPECT_EQ(neighborD_mgr->channel, 149);
+    EXPECT_EQ(neighborD_mgr->priority, 4);
+
+    // Neighbors B and C should be present and updated with values from dec_map
+    vif_neighbors_t* neighborB_mgr_after = (vif_neighbors_t*)hash_map_get(mgr_map, "B");
+    ASSERT_NE(neighborB_mgr_after, nullptr);
+    EXPECT_STREQ(neighborB_mgr_after->neighbor_id, "B");
+    EXPECT_EQ(neighborB_mgr_after->channel, 140);
+    EXPECT_EQ(neighborB_mgr_after->priority, 22);
+
+    vif_neighbors_t* neighborC_mgr_after = (vif_neighbors_t*)hash_map_get(mgr_map, "C");
+    ASSERT_NE(neighborC_mgr_after, nullptr);
+    EXPECT_STREQ(neighborC_mgr_after->neighbor_id, "C");
+    EXPECT_EQ(neighborC_mgr_after->channel, 144);
+    EXPECT_EQ(neighborC_mgr_after->priority, 33);
+
+    // The function should return RETURN_OK
+    EXPECT_EQ(result, RETURN_OK);
+
+    // Clean up mgr_map: remove B, C, D and free memory
+    for(const char* neighbor_id : {"B", "C", "D"}) {
+        vif_neighbors_t* obj = (vif_neighbors_t*)hash_map_remove(mgr_map, neighbor_id);
+        if (obj) free(obj);
+    }
+    hash_map_destroy(mgr_map);
+    mgr->vif_neighbors_map = NULL;
+}
