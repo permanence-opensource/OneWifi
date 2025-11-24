@@ -262,3 +262,67 @@ TEST(WifiCtrlWebconfig, VifNeighborsApplyDeleteNeighbors)
     mgr->vif_neighbors_map = NULL;
     // dec_map is destroyed by apply, do not destroy again
 }
+
+/** testcase for webconfig_vif_neighbors_apply: TEST(WifiCtrlWebconfig, VifNeighborsApplyUpdateNeighbors)
+	 objective: Test that neighbors present in both maps get updated in mgr->vif_neighbors_map from data->vif_neighbors_map content.
+	 expected outcome: mgr_map's neighbor is updated to match dec_map's values. Function returns RETURN_OK.
+**/
+TEST(WifiCtrlWebconfig, VifNeighborsApplyUpdateNeighbors)
+{
+    // Setup: create two neighbors with same ID but different fields
+    const char *neighbor_id = "neighborA";
+    vif_neighbors_t *mgr_neighbor = (vif_neighbors_t *)malloc(sizeof(vif_neighbors_t));
+    vif_neighbors_t *dec_neighbor = (vif_neighbors_t *)malloc(sizeof(vif_neighbors_t));
+
+    ASSERT_NE(mgr_neighbor, nullptr);
+    ASSERT_NE(dec_neighbor, nullptr);
+
+    // Set neighbor ID
+    strncpy(mgr_neighbor->neighbor_id, neighbor_id, sizeof(mgr_neighbor->neighbor_id) - 1);
+    strncpy(dec_neighbor->neighbor_id, neighbor_id, sizeof(dec_neighbor->neighbor_id) - 1);
+
+    // Set other fields different
+    strncpy(mgr_neighbor->bssid, "00:11:22:33:44:55", sizeof(mgr_neighbor->bssid) - 1);
+    mgr_neighbor->channel = 1;
+    mgr_neighbor->priority = 5;
+
+    strncpy(dec_neighbor->bssid, "66:77:88:99:AA:BB", sizeof(dec_neighbor->bssid) - 1); // different
+    dec_neighbor->channel = 6;                                                         // different
+    dec_neighbor->priority = 10;                                                       // different
+
+    // Create hash maps
+    hash_map_t *mgr_map = hash_map_create();
+    hash_map_t *dec_map = hash_map_create();
+
+    ASSERT_NE(mgr_map, nullptr);
+    ASSERT_NE(dec_map, nullptr);
+
+    // Insert into maps
+    ASSERT_EQ(hash_map_put(mgr_map, strdup(neighbor_id), mgr_neighbor), 0);
+    ASSERT_EQ(hash_map_put(dec_map, strdup(neighbor_id), dec_neighbor), 0);
+
+    // Setup `mgr` and `data`
+    wifi_mgr_t *mgr = get_wifimgr_obj();
+    webconfig_subdoc_decoded_data_t data = {0};
+    mgr->vif_neighbors_map = mgr_map;
+    data.vif_neighbors_map = dec_map;
+
+    // Test
+    int ret = webconfig_vif_neighbors_apply(NULL, &data);
+    ASSERT_EQ(ret, RETURN_OK);
+
+    // mgr_map's neighbor should now match dec_neighbor
+    vif_neighbors_t *updated = (vif_neighbors_t *)hash_map_get(mgr_map, neighbor_id);
+
+    ASSERT_NE(updated, nullptr);
+    EXPECT_STREQ(updated->neighbor_id, neighbor_id);
+    EXPECT_STREQ(updated->bssid, dec_neighbor->bssid);
+    EXPECT_EQ(updated->channel, dec_neighbor->channel);
+    EXPECT_EQ(updated->priority, dec_neighbor->priority);
+
+    // Teardown: cleanup; dec_map already destroyed in function
+    hash_map_destroy(mgr_map);
+    mgr->vif_neighbors_map = NULL;
+
+    // dec_neighbor is freed by webconfig_vif_neighbors_apply; mgr_neighbor is also freed if map is destroyed
+}
