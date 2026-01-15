@@ -41,8 +41,7 @@ static void wifi_api2_eventhandler(
 {
     rbusValue_t wifi_api_result;
 
-    /* Name (2nd arg) should be in sync with the name from rbusObject_SetValue */
-    wifi_api_result = rbusObject_GetValue(event->data, WIFI_RBUS_WIFIAPI_RESULT);
+    wifi_api_result = rbusObject_GetValue(event->data, "value");
 
     if (wifi_api_result) {
         printf("%s\n", rbusValue_GetString(wifi_api_result, NULL));

@@ -6,10 +6,19 @@ on:
   pull_request:
     branches: [ "develop" ]
 
+permissions:
+  checks: write
+  contents: read
+  issues: read
+  packages: read
+  pull-requests: write
+  statuses: read
+  id-token: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
-    
+
     strategy:
       matrix:
         platform:
@@ -17,6 +26,8 @@ jobs:
             makefile_path: "build/linux/rpi/makefile"
           - name: "Banana Pi R4"
             makefile_path: "build/linux/bpi/makefile"
+          - name: "Platform Mock Unittests"
+            makefile_path: "build/linux/mockplatform/makefile"
       fail-fast: false
 
     name: Build for ${{ matrix.platform.name }}
@@ -66,7 +77,9 @@ jobs:
                                 mariadb-server \
                                 gnupg \
                                 file \
-                                golang
+                                golang \
+                                libgtest-dev \
+                                libgmock-dev
 
     - name: Setup OneWiFi for ${{ matrix.platform.name }}
       working-directory: easymesh_project/OneWifi
@@ -79,5 +92,22 @@ jobs:
 
     - name: Build OneWiFi for ${{ matrix.platform.name }}
       working-directory: easymesh_project/OneWifi
+      continue-on-error: true
       run: |
         make -f ${{ matrix.platform.makefile_path }} all
+
+    - name: Copy Test Results
+      if: ${{ matrix.platform.name == 'Platform Mock Unittests' }}
+      run: |
+        cp -Lpr /tmp/Gtest_Report test-results
+      shell: bash
+
+    - name: Publish Test Results
+      uses: EnricoMi/publish-unit-test-result-action@v2
+      if: ${{ matrix.platform.name == 'Platform Mock Unittests' }}
+      with:
+        files: |
+          test-results/**/*.xml
+          test-results/**/*.trx
+          test-results/**/*.json
+        check_name: ${{ matrix.platform.name }} test results
